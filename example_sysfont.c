@@ -66,7 +66,11 @@ int main(void)
 	PORTC.DIR = (1<<4); //SS wybor
 	SPIC.CTRL |= (1<<6)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
 	PORTC.OUT = (1<<4); //SS high
-	
+	_delay_ms(50);
+	PORTC.OUT = 0;
+	SPIC.DATA = 45|(1<<6);//adres i multiple write
+	SPIC.DATA = (1<<3); //measure
+	PORTC.OUT = (1<<4);
 
 	sei();
 	
@@ -107,12 +111,12 @@ int main(void)
 		itoa(stan, b, 10);
 		gfx_mono_draw_string(b, 30, 10, &sysfont);
 		
+		
 		//komunikacja spi
 		PORTC.OUT = 0;
-		SPIC.DATA = 0b10110010;
-		_delay_ms(100);
-		SPIC.DATA = 0b00000000;
+		SPIC.DATA = 50 | (1<<7);//adres i read
 		
+		//SPIC.DATA = 0;
 		/*int sprawdz = SPIC.STATUS;
 		itoa(sprawdz, c, 10);
 		gfx_mono_draw_string(c, 0, 20, &sysfont);

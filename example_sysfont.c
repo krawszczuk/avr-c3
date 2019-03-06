@@ -40,12 +40,12 @@ void spi_write(uint8_t gdzie, uint8_t co)
 	return 0;
 }
 
-uint8_t spi_read()
+uint8_t spi_read(uint8_t gdzie)
 {
 	PORTC.OUT = 0;
 	_delay_us(100);
 	
-	SPIC.DATA = (50 | (1<<7));//adres i read
+	SPIC.DATA = (gdzie | (1<<7));//adres i read
 	while(!(SPIC.STATUS==(1<<7)))
 	{
 		_delay_us(1);
@@ -151,10 +151,10 @@ int main(void)
 		itoa(stan, b, 10);
 		gfx_mono_draw_string(b, 30, 10, &sysfont);
 		
-		acel = spi_read();
+		acel = spi_read(51);
 		itoa(acel, c, 10);
 		gfx_mono_draw_string(c, 0, 20, &sysfont);//przyspieszenie
-		acel = spi_read(51);
+		acel = spi_read(50);
 		itoa(acel, c, 10);
 		gfx_mono_draw_string(c, 20, 20, &sysfont);//przyspieszenie
 	}

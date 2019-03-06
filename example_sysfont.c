@@ -54,7 +54,7 @@ int main(void)
 		
 	//wlaczenie przerwan dla guzika 1 (port f 1)
 	PMIC.CTRL = (1<<1);
-	PORTF.INTCTRL =  (1<<1); 
+	PORTF.INTCTRL |=  (1<<1); 
 	PORTF.INT0MASK = (1<<1);   
 	PORTF.PIN1CTRL = 3; 
 	//dodanie drugiego guzika
@@ -62,21 +62,38 @@ int main(void)
 	PORTF.INT1MASK = (1<<2); 
 	PORTF.PIN2CTRL = 2; 
 	
+	uint8_t sukc=0;
 	//SPI
 	PORTC.DIR = (1<<4); //SS wybor
 	SPIC.CTRL |= (1<<6)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
 	PORTC.OUT = (1<<4); //SS high
-	_delay_ms(50);
+	_delay_ms(500);
 	PORTC.OUT = 0;
-	SPIC.DATA = 45|(1<<6);//adres i multiple write
-	SPIC.DATA = (1<<3); //measure
+	_delay_ms(500);
+	
+	
+	SPIC.DATA = 0|(1<<7);
+	//SPIC.DATA = 45;//adres i multiple write
+	_delay_us(100);
+	/*while(SPIC.STATUS==0)
+	{
+		
+	}*/
+	SPIC.DATA = 0;
+	//SPIC.DATA = 0|(1<<3); //measure
+	//_delay_ms(100);
+	sukc = SPIC.DATA;
+	char d[3];
+	gfx_mono_init();
+	itoa(sukc, d, 10);
+		gfx_mono_draw_string(d, 0, 0, &sysfont);
 	PORTC.OUT = (1<<4);
 
 	sei();
 	
-	char a[10];
-	char b[2];
-	char c[10];
+	char a[3];
+	char b[1];
+	char c[3];
 	uint8_t acel = 0;
 	uint8_t wynik = 0;
 	
@@ -111,9 +128,11 @@ int main(void)
 		itoa(stan, b, 10);
 		gfx_mono_draw_string(b, 30, 10, &sysfont);
 		
-		
+		SPIC.STATUS;
 		//komunikacja spi
+		_delay_ms(5);
 		PORTC.OUT = 0;
+		_delay_ms(5);
 		SPIC.DATA = 50 | (1<<7);//adres i read
 		
 		//SPIC.DATA = 0;
@@ -121,8 +140,12 @@ int main(void)
 		itoa(sprawdz, c, 10);
 		gfx_mono_draw_string(c, 0, 20, &sysfont);
 		_delay_ms(1000);*/
-		
+		_delay_ms(5);
+		SPIC.STATUS;
+		//SPIC.DATA = 0;
+		_delay_ms(5);
 		acel = SPIC.DATA;
+		_delay_ms(5);
 		
 		/*sprawdz = SPIC.STATUS;
 		itoa(sprawdz, c, 10);

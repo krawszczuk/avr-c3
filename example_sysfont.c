@@ -19,6 +19,48 @@ ISR(PORTF_INT1_vect)
 	stan = 2;
 }
 
+void spi_write(uint8_t gdzie, uint8_t co)
+{
+	PORTC.OUT = 0;
+	_delay_us(100);
+	
+	SPIC.DATA = gdzie; //adres
+	while(!(SPIC.STATUS==(1<<7)))
+	{
+		_delay_us(1);
+	}
+	
+	SPIC.DATA = co; //wartosc
+	while(!(SPIC.STATUS==(1<<7)))
+	{
+		_delay_us(1);
+	}
+	_delay_us(100);
+	PORTC.OUT = (1<<4);
+	return 0;
+}
+
+uint8_t spi_read()
+{
+	PORTC.OUT = 0;
+	_delay_us(100);
+	
+	SPIC.DATA = (50 | (1<<7));//adres i read
+	while(!(SPIC.STATUS==(1<<7)))
+	{
+		_delay_us(1);
+	}
+	
+	SPIC.DATA = 0;
+	while(!(SPIC.STATUS==(1<<7)))
+	{
+		_delay_us(1);
+	}
+	_delay_us(100);
+	PORTC.OUT = (1<<4);
+	return SPIC.DATA;
+}
+
 int main(void)
 {
 	cli();
@@ -62,38 +104,19 @@ int main(void)
 	PORTF.INT1MASK = (1<<2); 
 	PORTF.PIN2CTRL = 2; 
 	
-	uint8_t sukc=0;
-	//SPI
-	PORTC.DIR = (1<<4); //SS wybor
+	//SPI setup
+	PORTC.DIR = (1<<4)|(1<<5)|(1<<7); //wybor pinow
 	SPIC.CTRL |= (1<<6)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
 	PORTC.OUT = (1<<4); //SS high
-	_delay_ms(500);
-	PORTC.OUT = 0;
-	_delay_ms(500);
-	
-	
-	SPIC.DATA = 0|(1<<7);
-	//SPIC.DATA = 45;//adres i multiple write
-	_delay_us(100);
-	/*while(SPIC.STATUS==0)
-	{
-		
-	}*/
-	SPIC.DATA = 0;
-	//SPIC.DATA = 0|(1<<3); //measure
-	//_delay_ms(100);
-	sukc = SPIC.DATA;
-	char d[3];
-	gfx_mono_init();
-	itoa(sukc, d, 10);
-		gfx_mono_draw_string(d, 0, 0, &sysfont);
-	PORTC.OUT = (1<<4);
+	_delay_ms(10);
+	spi_write(45,(0|(1<<3))); //setup adxl
 
 	sei();
 	
 	char a[3];
 	char b[1];
 	char c[3];
+	int razem;
 	uint8_t acel = 0;
 	uint8_t wynik = 0;
 	
@@ -128,38 +151,11 @@ int main(void)
 		itoa(stan, b, 10);
 		gfx_mono_draw_string(b, 30, 10, &sysfont);
 		
-		SPIC.STATUS;
-		//komunikacja spi
-		_delay_ms(5);
-		PORTC.OUT = 0;
-		_delay_ms(5);
-		SPIC.DATA = 50 | (1<<7);//adres i read
-		
-		//SPIC.DATA = 0;
-		/*int sprawdz = SPIC.STATUS;
-		itoa(sprawdz, c, 10);
-		gfx_mono_draw_string(c, 0, 20, &sysfont);
-		_delay_ms(1000);*/
-		_delay_ms(5);
-		SPIC.STATUS;
-		//SPIC.DATA = 0;
-		_delay_ms(5);
-		acel = SPIC.DATA;
-		_delay_ms(5);
-		
-		/*sprawdz = SPIC.STATUS;
-		itoa(sprawdz, c, 10);
-		gfx_mono_draw_string(c, 0, 20, &sysfont);
-		_delay_ms(1000);*/
-		
-		PORTC.OUT = (1<<4);
-		
+		acel = spi_read();
 		itoa(acel, c, 10);
 		gfx_mono_draw_string(c, 0, 20, &sysfont);//przyspieszenie
-		
-		
-		
-		/*if(!(PORTF.IN & (1<<2))) //guzik 2
-		gfx_mono_draw_string("wcisniety", 0, 20, &sysfont);*/
+		acel = spi_read(51);
+		itoa(acel, c, 10);
+		gfx_mono_draw_string(c, 20, 20, &sysfont);//przyspieszenie
 	}
 }

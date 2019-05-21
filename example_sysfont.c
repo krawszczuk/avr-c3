@@ -105,7 +105,7 @@ int main(void)
 	PORTF.PIN2CTRL = 2; 
 	
 	//SPI setup
-	PORTC.DIR = (1<<4)|(1<<5)|(1<<7); //wybor pinow
+	PORTC.DIR = (1<<4)|(1<<5)|(1<<7);
 	SPIC.CTRL |= (1<<6)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
 	PORTC.OUT = (1<<4); //SS high
 	_delay_ms(10);
@@ -123,7 +123,7 @@ int main(void)
 	while (true)
 	{
 		ADCA.CTRLA |= 1<<2; //start pomiaru adc
-		_delay_ms(100);
+		_delay_ms(200);
 		gfx_mono_init();
 		
 		wynik = ADCA.CH0RES; //wynik adc
